@@ -1,82 +1,49 @@
+import selenium
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.common.exceptions import NoSuchElementException
-from selectorlib import Extractor
-import requests
-import json
-import time
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys 
 
-def search_amazon(item):
+# //span[text()='']
+
+def iniciar (item):
     driver = webdriver.Chrome(ChromeDriverManager().install())
-    driver.get('https://www.amazon.com') 
-    search_box = driver.find_element ('twotabsearchtextbox','q').send_keys(item)
-    search_button = driver.find_element('nav-search-submit-button','q').click()
+    driver.get("https://www.amazon.com")
 
-    driver.implicity_wait(5)
+    search_box = driver.find_element(By.ID, "twotabsearchtextbox")
+    search_box.clear()
+    search_box.send_keys(item)
 
-    try:
-        num_page = driver.find_element_by_xpath ('//*[@id="search"]/div[1]/div[1]/div/span[1]/div[1]/div[67]/div/div/span/span[4]')
-    except NoSuchElementException:
-        num_page=driver.find_element_by_class_name('s-pagonation-item').click()
+    search_button = driver.find_element(By.ID, "nav-search-submit-button")
+    search_button.click()
 
-    driver.implicity_wait(3)
+    #driver.find_element(By.XPATH, "//span[text()='Elegible para Envío Gratis']").click()
 
-    url_list=[]
+    pokemon_names = []
+    pokemon_prices = []
+    pokemon_reviews = []
 
-    for i in range (int(num_page.text)):
-        page_ = i + 1
-        url_list.append(driver.current_url)
-        driver.implicity_wait(4)
-        click_next = driver.find_element_by_class_name('s-pagonation-item').click()
-        print("Page " + str(page_) + " grabbed")
+    # all itlems
+    # name ## //span[@class='a-size-base-plus a-color-base a-text-normal']
+    names = driver.find_elements(By.XPATH, "//span[@class='a-size-base-plus a-color-base a-text-normal']")
+    for name in names:
+        pokemon_names.append(name.text)
+    # price
+    prices = driver.find_elements(By.XPATH, "//span[@class='a-price-whole']")
+    for price in prices:
+        pokemon_prices.append(price.text)
+    #reviews
+    reviews = driver.find_elements(By.XPATH, "//span[@class='a-size-base s-underline-text']")
+    for review in reviews:
+        pokemon_reviews.append(review.text)
 
-    driver.quit()
 
-    with open('search_results_urls.txt', 'w') as filehandle:
-        for result_page in url_list:
-            filehandle.write('%s\n' % result_page)
-    print("---DONE---")
+    print(len(pokemon_names))
+    print(len(pokemon_prices))
+    print(len(pokemon_reviews))
 
-def scrape(url):
 
-    headers = {
-        'dnt': '1',
-        'upgrade-insecure-requests': '1',
-        'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.61 Safari/537.36',
-        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-        'sec-fetch-site': 'same-origin',
-        'sec-fetch-mode': 'navigate',
-        'sec-fetch-user': '?1',
-        'sec-fetch-dest': 'document',
-        'referer': 'https://www.amazon.com/',
-        'accept-language': 'en-GB,en-US;q=0.9,en;q=0.8',
-    }
+iniciar("pokemon")
 
-    # Download the page using requests
-    print("Downloading %s"%url)
-    r = requests.get(url, headers=headers)
-    # Simple check to check if page was blocked (Usually 503)
-    if r.status_code > 500:
-        if "To discuss automated access to Amazon data please contact" in r.text:
-            print("Page %s was blocked by Amazon. Please try using better proxies\n"%url)
-        else:
-            print("Page %s must have been blocked by Amazon as the status code was %d"%(url,r.status_code))
-        return None
-    # Pass the HTML of the page and create
-    return e.extract(r.text)
 
-search_amazon('pokemon peluches') # <------ search query goes here.
 
-e = Extractor.from_yaml_file('search_results.yml')
-
-# product_data = []
-with open("search_results_urls.txt",'r') as urllist, open('search_results_output.jsonl','w') as outfile:
-    for url in urllist.read().splitlines():
-        data = scrape(url)
-        if data:
-            for product in data['products']:
-                product['search_url'] = url
-                print("Saving Product: %s"%product['title'].encode('utf8'))
-                json.dump(product,outfile)
-                outfile.write("\n")
-                # sleep(5)
