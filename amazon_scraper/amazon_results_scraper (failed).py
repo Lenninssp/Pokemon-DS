@@ -8,22 +8,17 @@ import json
 import time
 
 def search_amazon(item):
-    print("------------------------------------------------------")
     driver = webdriver.Chrome(ChromeDriverManager().install())
     driver.get('https://www.amazon.com') 
     driver.implicitly_wait(5)
     search_box = driver.find_element (By.ID,'twotabsearchtextbox').send_keys(item)
-    print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
     search_button = driver.find_element(By.ID,'nav-search-submit-button').click()
-    print("**********************************************************")
     driver.implicitly_wait(5)
 
     try:
         num_page = driver.find_element(By.XPATH, '//*[@id="search"]/div[1]/div[1]/div/span[1]/div[1]/div[67]/div/div/span/span[4]')
-        print("\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\")
     except NoSuchElementException:
         num_page=driver.find_element(By.CLASS_NAME, 's-pagonation-item').click()
-        print("/////////////////////////////////////////////////////")
 
     driver.implicitly_wait(3)
 
@@ -32,13 +27,11 @@ def search_amazon(item):
     for i in range (int(num_page.text)):
         page_ = i + 1
         url_list.append(driver.current_url)
-        print(i, "------------------------------------------------------")
         driver.implicitly_wait(4)
         click_next = driver.find_element(By.CLASS_NAME,'s-pagonation-item').click()
         print("Page " + str(page_) + " grabbed")
 
     driver.quit()
-    print("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
     with open('search_results_urls.txt', 'w') as filehandle:
         for result_page in url_list:
