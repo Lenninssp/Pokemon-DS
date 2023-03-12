@@ -1,6 +1,6 @@
 # Pokemon DS
 
-Este es un proyecto de análisis de datos sobre la franquicia de Pokémon. El objetivo principal es analizar los datos de los juegos de Pokémon para responder preguntas interesantes sobre la franquicia y sus personajes.
+Este es un proyecto de análisis de datos sobre los peluches de Pokémon. Es mi primer proyecto en Data Science, por lo cual solo me enfocaré en conceptos basicos y en desarrollar buenas practicas.
 
 ## Contenido
 
