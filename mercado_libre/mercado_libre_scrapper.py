@@ -61,7 +61,6 @@ def iniciar (item):
     #print(pokemon_names,pokemon_prices[0], pokemon_prices[1],pokemon_prices[2])
     #for a,b in enumerate(pokemon_names):
     #    print(a,b)
-    print(pokemon_prices[2])
     df = pd.DataFrame(zip(pokemon_names,pokemon_prices[0],pokemon_prices[1],pokemon_prices[2]), columns=['pokemon_names','pokemon_prices 1','pokemon_prices 2','pokemon_prices 3'])
 
     df = df.reset_index()
